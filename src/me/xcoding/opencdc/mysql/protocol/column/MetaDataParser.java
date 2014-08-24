@@ -1,6 +1,6 @@
 package me.xcoding.opencdc.mysql.protocol.column;
 
-public interface MetaDataParser {
+public abstract class MetaDataParser {
 	public static final int MYSQL_TYPE_DECIMAL	 	= 0x00;
 	public static final int MYSQL_TYPE_TINY			= 0x01;
 	public static final int MYSQL_TYPE_SHORT		= 0x02;
@@ -33,10 +33,30 @@ public interface MetaDataParser {
 	public static final int MYSQL_TYPE_STRING		= 0x1E;
 	public static final int MYSQL_TYPE_GEOMETRY		= 0x1F;
 	
-	public static final int lengthOf[] = new int[]{
-		0X02, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-		0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x00, 
-		0x00, 0x00, 0x01, 0x02, 0x02, 0x00
-	};
+	public static final int lengthOf[] = new int[0x20];
+
+	static {
+		lengthOf[MetaDataParser.MYSQL_TYPE_FLOAT]       = 1;
+		lengthOf[MetaDataParser.MYSQL_TYPE_DOUBLE]      = 1;
+		lengthOf[MetaDataParser.MYSQL_TYPE_TINY_BLOB]   = 1;
+		lengthOf[MetaDataParser.MYSQL_TYPE_BLOB]        = 1;
+		lengthOf[MetaDataParser.MYSQL_TYPE_MEDIUM_BLOB] = 1;
+		lengthOf[MetaDataParser.MYSQL_TYPE_LONG_BLOB]   = 1;
+		lengthOf[MetaDataParser.MYSQL_TYPE_TIME2]       = 1;
+		lengthOf[MetaDataParser.MYSQL_TYPE_DATETIME2]   = 1;
+		lengthOf[MetaDataParser.MYSQL_TYPE_TIMESTAMP2]  = 1;
+		                                                
+		lengthOf[MetaDataParser.MYSQL_TYPE_BIT]         = 2;
+		lengthOf[MetaDataParser.MYSQL_TYPE_VARCHAR]     = 2;
+		lengthOf[MetaDataParser.MYSQL_TYPE_NEWDECIMAL]	= 2;
+		lengthOf[MetaDataParser.MYSQL_TYPE_SET]         = 2;
+		lengthOf[MetaDataParser.MYSQL_TYPE_ENUM]        = 2;
+		lengthOf[MetaDataParser.MYSQL_TYPE_STRING]      = 2;
+	}
+//	{
+//		0X02, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+//		0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x00, 
+//		0x00, 0x00, 0x01, 0x02, 0x02, 0x00
+//	};
 }
 
