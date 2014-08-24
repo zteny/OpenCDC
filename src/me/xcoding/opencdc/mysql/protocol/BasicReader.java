@@ -8,6 +8,34 @@ public interface BasicReader {
 	long FFl = 0x00000000000000FFl;
 	
 	/**
+	 *  Signed integer number, big end;
+	 * @param length (should be less than 4bytes)
+	 * @return Integer with signed
+	 */
+	int readVarLenIntS(int length);
+	
+	/**
+	 *  Unsigned integer number, big end;
+	 * @param length (should be less than 4bytes)
+	 * @return Integer with Unsigned
+	 */
+	int readVarLenIntU(int length);
+	
+	/**
+	 *  Signed long number, big end;
+	 * @param length (should be less than 8bytes)
+	 * @return Long with signed
+	 */
+	long readVarLenLongS(int length);
+	
+	/**
+	 *  Unsigned long number, big end;
+	 * @param length (should be less than 8bytes)
+	 * @return Long with Unsigned
+	 */
+	long readVarLenLongU(int length);
+	
+	/**
 	 * Protocol::FixedLengthInteger
 	 * Type 1
 	 */
