@@ -1,6 +1,5 @@
 package me.xcoding.opencdc.mysql.protocol;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
@@ -8,8 +7,55 @@ import me.xcoding.opencdc.mysql.protocol.BasicReader;
 public abstract class ReadablePacket extends InputStream implements BasicReader {
 	protected final byte[] buffer = new byte[4 << 20];
 	
-	protected int end = 4;
 	protected int offset = 0;
+	protected int end = 4; // FIXME
+	
+	@Override
+	public int readVarLenIntS(int length) {
+		if(length == 0) {
+			return 0;
+		}
+		
+		int v = 0;
+		for(int i=1; i<length; i++) {
+			v = (v << 8) | (buffer[offset++] & FF);
+		}
+		v = (v << 8) | buffer[offset++];
+		
+		return v;
+	}
+
+	@Override
+	public int readVarLenIntU(int length) {
+		int v = 0;
+		for(int i=0; i<length; i++) {
+			v = (v << 8) | (buffer[offset++] & FF);
+		}
+		return v;
+	}
+
+	@Override
+	public long readVarLenLongS(int length) {
+		if(length < 1) 
+			return 0;
+
+		long v = 0;
+		for(int i=1; i<length; i++) {
+			v = (v << 8) | (buffer[offset++] & FF);
+		}
+		
+		v = (v << 8) | buffer[offset++];
+		return v;
+	}
+
+	@Override
+	public long readVarLenLongU(int length) {
+		long v = 0;
+		for(int i=0; i<length; i++) {
+			v = (v << 8) | (buffer[offset++] & FF);
+		}
+		return v;
+	}
 	
 	@Override
 	public int readFixedIntT1() {
@@ -187,18 +233,6 @@ public abstract class ReadablePacket extends InputStream implements BasicReader 
 		offset = offset + length;
 		
 		return b;
-	}
-
-	@Override
-	public boolean hasMore() throws IOException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean hasNext() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }
