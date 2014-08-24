@@ -73,4 +73,9 @@ public class XReader extends ReadablePacket {
 		return (buffer[offset++] & FF);
 	}
 
+	@Override
+	public boolean hasNext() {
+		return false;
+	}
+
 }
