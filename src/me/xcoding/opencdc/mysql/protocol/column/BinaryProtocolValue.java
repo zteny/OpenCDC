@@ -1,5 +1,6 @@
 package me.xcoding.opencdc.mysql.protocol.column;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
@@ -162,6 +163,11 @@ class MYear implements ValueParser {
 	}
 }
 
+/**
+ * This enumeration value is only used internally and cannot exist in a binlog.
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ *
+ */
 class MNewDate implements ValueParser {
 	@Override
 	public Object valueOf(int length, BasicReader reader) {
@@ -180,7 +186,7 @@ class MVarchar implements ValueParser {
 class MBit implements ValueParser {
 	@Override
 	public Object valueOf(int length, BasicReader reader) {
-		
+		// FIXME
 		return null;
 	}
 }
@@ -243,10 +249,84 @@ class MTime2 implements ValueParser {
 }
 
 class MNewDecimal implements ValueParser {
+	private static final int DIG_PER_DEC1  = 0x09;
+	private static final int dig2bytes[]={0, 1, 1, 2, 2, 3, 3, 4, 4, 4};
+	
 	@Override
 	public Object valueOf(int length, BasicReader reader) {
 		// TODO FIXME
 		return null;
+	}
+	
+	/**
+	 * @see mysql-5.1.60/strings/decimal.c - bin2decimal()
+	 */
+	public BigDecimal getDecimal(int precision, int scale) {
+		int intg = precision - scale,
+	      intg0 = intg / DIG_PER_DEC1, frac0 = scale / DIG_PER_DEC1,
+	      intg0x = intg - intg0 * DIG_PER_DEC1, frac0x = scale - frac0 * DIG_PER_DEC1,
+	      intg1 = intg0 + (intg0x > 0 ? 1 : 0), frac1 = frac0 + (frac0x > 0 ? 1 : 0);
+		
+//		int bin_size = decimal_bin_size(precision, scale);
+		int bin_size = intg0 << 2 + dig2bytes[intg0x]+ frac0 << 2 + dig2bytes[frac0x];
+		byte[] value = new byte[bin_size]; // reader.readBytesVarLen(bin_size);
+		value[0] ^= 0x80;
+		
+		int error = ERROR.E_DEC_OK;
+		
+		final int mask = ((value[0] & 0x80) == 0x80) ? 0 : -1;
+		do {
+			if(intg1 + frac1 > value.length) {
+				if(intg1 > value.length) {
+					intg1 = value.length;
+					frac1 = 0;
+					error = ERROR.E_DEC_OVERFLOW;
+				} else {
+					frac1 = value.length - intg1;
+					error = ERROR.E_DEC_TRUNCATED;
+				}
+			} else {
+				error = ERROR.E_DEC_OVERFLOW;
+			}
+		} while(false);
+		
+		if(error != 0) {
+			if(intg1 < intg0 + (intg0x > 0 ? 1 : 0)) {
+				int from = dig2bytes[intg0x] + ((intg0 - intg1) << 2);
+				
+				frac0 = frac0x = intg0x = 0;
+			    intg0 = intg1;
+			} else {
+				frac0x = 0;
+				frac0x = frac1;
+			}
+		}
+		
+		return null;
+	}
+	
+	public int decimal_bin_size(int precision, int scale) {
+		int intg=precision-scale,
+	      intg0=intg/DIG_PER_DEC1, frac0=scale/DIG_PER_DEC1,
+	      intg0x=intg-intg0*DIG_PER_DEC1, frac0x=scale-frac0*DIG_PER_DEC1;
+
+		return intg0 << 2 + dig2bytes[intg0x]+ frac0 << 2 + dig2bytes[frac0x];
+	}
+	
+	interface ERROR {
+		public static final int E_DEC_OK            =   0;
+		public static final int E_DEC_TRUNCATED     =   1;
+		public static final int E_DEC_OVERFLOW      =   2;
+		public static final int E_DEC_DIV_ZERO      =   4;
+		public static final int E_DEC_BAD_NUM       =   8;
+		public static final int E_DEC_OOM           =  16;
+
+		public static final int E_DEC_ERROR         =  31;
+		public static final int E_DEC_FATAL_ERROR   =  30;
+	}
+	
+	class decimal_t {
+		
 	}
 }
 
