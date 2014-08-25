@@ -147,4 +147,8 @@ public interface BasicReader {
 	
 	boolean hasNext();
 	
+//	int position();
+//	
+//	int position(int position);
+	
 }
