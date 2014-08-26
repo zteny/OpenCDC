@@ -1,10 +1,8 @@
 package me.xcoding.opencdc.binlog.parser;
 
 import me.xcoding.opencdc.binlog.EventContext;
-import me.xcoding.opencdc.binlog.Parser;
 import me.xcoding.opencdc.binlog.event.EventHeader;
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
-import me.xcoding.opencdc.net.packet.ReadablePacket;
 
 /**
  * v4 event structure:

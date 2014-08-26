@@ -151,4 +151,5 @@ public interface BasicReader {
 //	
 //	int position(int position);
 	
+	int skip(int off);
 }

@@ -3,7 +3,7 @@ package me.xcoding.opencdc.net.connector.intern;
 import me.xcoding.opencdc.net.connector.ConnectionException;
 import me.xcoding.opencdc.net.connector.ISQLConnector;
 import me.xcoding.opencdc.net.packet.Packetable;
-import me.xcoding.opencdc.net.packet.ReadablePacket;
+import me.xcoding.opencdc.mysql.protocol.ReadablePacket;;
 
 public class SQLConnector implements ISQLConnector {
 

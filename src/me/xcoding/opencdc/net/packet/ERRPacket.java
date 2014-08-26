@@ -7,17 +7,18 @@ public class ERRPacket {
 	public final String errorMessage;
 	
 	public static ERRPacket builder(byte[] buffer) {
-		ReadablePacket p = new ReadablePacket();
-		p.setBody(buffer);
-		
-		p.read();
-		
-		int errorCode = p.readVIntD2();
-		int sqlStateMarker = p.read();
-		String sqlState = p.readVariableLengthString(5);
-		String errorMessage = p.readNulTerminatedString();
-		
-		return new ERRPacket(errorCode, sqlStateMarker, sqlState, errorMessage);
+//		ReadablePacket p = new ReadablePacket();
+//		p.setBody(buffer);
+//		
+//		p.read();
+//		
+//		int errorCode = p.readVIntD2();
+//		int sqlStateMarker = p.read();
+//		String sqlState = p.readVariableLengthString(5);
+//		String errorMessage = p.readNulTerminatedString();
+//		
+//		return new ERRPacket(errorCode, sqlStateMarker, sqlState, errorMessage);
+		return null;
 	}
 
 	public ERRPacket(int errorCode, int sqlStateMarker, String sqlState,

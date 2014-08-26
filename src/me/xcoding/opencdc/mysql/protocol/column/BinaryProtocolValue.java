@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 import me.xcoding.opencdc.mysql.ColumnType;
-import me.xcoding.opencdc.mysql.EventType;
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
 
 /**

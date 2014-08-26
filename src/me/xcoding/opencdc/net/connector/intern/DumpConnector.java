@@ -10,17 +10,15 @@ import javax.net.SocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.code.or.common.util.MySQLConstants;
-import com.google.code.or.common.util.MySQLUtils;
-
+import me.xcoding.opencdc.mysql.protocol.BasicReader;
+import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
 import me.xcoding.opencdc.net.ConnectorContext;
 import me.xcoding.opencdc.net.HandshakeV10;
 import me.xcoding.opencdc.net.connector.ConnectionException;
 import me.xcoding.opencdc.net.connector.IDumpConnector;
+import me.xcoding.opencdc.net.connector.SocketReader;
+import me.xcoding.opencdc.net.connector.SocketWriter;
 import me.xcoding.opencdc.net.packet.BinlogPacket;
-import me.xcoding.opencdc.net.packet.Packetable;
-import me.xcoding.opencdc.net.packet.ReadablePacket;
-import me.xcoding.opencdc.net.packet.WritablePacket;
 
 public class DumpConnector implements IDumpConnector {
 	private Logger logger = LoggerFactory.getLogger(DumpConnector.class);
@@ -35,6 +33,9 @@ public class DumpConnector implements IDumpConnector {
 		this.context = context;
 	}
 	
+	SocketReader reader = null;
+	SocketWriter writer = null;
+	
 	@Override
 	public void connection(String host, int port) throws ConnectionException {
 		try {
@@ -42,19 +43,20 @@ public class DumpConnector implements IDumpConnector {
 			in = socket.getInputStream();
 			out = socket.getOutputStream();
 			
-			int v = in.read() | (in.read() & 0xFF) << 8 | (in.read() & 0xFF) << 16;
-			in.read(); 
-			byte[] b = new byte[v];
-			in.read(b, 0, v);
+			reader = new SocketReader(in);
+			writer = new SocketWriter(out);
 			
-			v10 = new HandshakeV10(b);
+			ReadablePacket p = reader.buildPacket();
+			
+			v10 = new HandshakeV10(p);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	byte[] header = new byte[] {4, -126, 0, 0};
-	@Override
+	byte[] header = new byte[] {4, -126, 0, 0}; // 00 00 82 04
+	// CLIENT_SECURE_CONNECTION | CLIENT_PROTOCOL_41 | CLIENT_LONG_FLAG
+	@Override 
 	public void login(String username, String password) throws ConnectionException {
 		byte[] pwd = MySQLUtils.password41OrLater(password.getBytes(), v10.auth_plugin_data_part);
 		WritablePacket packet = new WritablePacket();

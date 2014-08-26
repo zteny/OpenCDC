@@ -2,7 +2,9 @@ package me.xcoding.opencdc.net;
 
 import java.lang.reflect.Field;
 
-import me.xcoding.opencdc.io.IOUtils;
+import me.xcoding.opencdc.mysql.protocol.CapabilityFlags;
+import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
+import me.xcoding.opencdc.utils.IOUtils;
 
 public class HandshakeV10 {
 	private int protocal_version = 0;
@@ -10,7 +12,7 @@ public class HandshakeV10 {
 	private int connectin_id = 0;
 	private byte[] auth_plugin_data_part_1; // byte[]
 	private int filer = 0;
-	private int capability_flag_1 = 0;
+	private int capability_flags_1 = 0;
 	private int character_set;
 	private int status_flags;
 	private int capability_flags_2;
@@ -21,39 +23,43 @@ public class HandshakeV10 {
 	public final byte[] auth_plugin_data_part;
 	
 	
-	public HandshakeV10(byte[] buffer) {
-		IOUtils io = new IOUtils(buffer, 0);
+	public HandshakeV10(ReadablePacket packet) {
+		protocal_version 		= packet.readFixedIntT1(); 
+		server_version			= packet.readStringNull(); // version
+		connectin_id 			= packet.readFixedIntT4(); // connection_id
+		auth_plugin_data_part_1 = packet.readBytesVarLen(8); // author scramble
+		filer 					= packet.readFixedIntT1(); // filer_1 // awayls set [00]
 		
-		protocal_version = io.readIntD8();
-		server_version = new String(io.readString()); // version
-		connectin_id = io.readIntD32();			 // connection_id
-		auth_plugin_data_part_1 = io.readString(8); // auth scramble
-		filer = io.readIntD8(); // filer_1
+		capability_flags_1 		= packet.readFixedIntT2(); // capability_flag_1
+		character_set			= packet.readFixedIntT1(); // charset_set
+		status_flags 			= packet.readFixedIntT2(); // status_flags
+		capability_flags_2 		= packet.readFixedIntT2(); // capabillity_flag_2
+		auth_plugin_data_len 	= packet.readFixedIntT1();
 		
-		capability_flag_1 = io.readIntD16(); // capability_flag_1
-		character_set = io.readIntD8();  // charset_set
-		status_flags = io.readIntD16(); // status_flags
-		capability_flags_2 = io.readIntD16(); // capabillity_flag_2
-		auth_plugin_data_len = io.readIntD8();
+		// for test
+		int capabilities = (capability_flags_1 & 0x0000FFFF) | ((capability_flags_2 & 0x0000FFFF) << 16);
+		System.out.println("HandshakeV10.HandshakeV10()" + 
+				((capabilities & 0x00080000) == auth_plugin_data_len));
 		
-		io.skip(10);
+		packet.skip(10);
 		
-		auth_plugin_data_part_2 = io.readString(); // max(13, length of auth-plugin-data - 8)
-		auth_plugin_name = new String(io.readString());
+		int length = Math.max(13, auth_plugin_data_len - 8);
+		if((capabilities & CapabilityFlags.CLIENT_SECURE_CONNECTION) == 0) {
+			auth_plugin_data_part_2	= packet.readBytesVarLen(length); // author scramble
+		}
+
+		if((capabilities & CapabilityFlags.CLIENT_SECURE_CONNECTION) == 0) {
+			auth_plugin_name = packet.readStringNull();
+		}
 		
-		int v = auth_plugin_data_part_1.length + auth_plugin_data_part_2.length;
-		auth_plugin_data_part = new byte[v];
-	
-		System.arraycopy(auth_plugin_data_part_1, 0, auth_plugin_data_part, 0, auth_plugin_data_part_1.length);
-		System.arraycopy(auth_plugin_data_part_2, 0, auth_plugin_data_part, auth_plugin_data_part_1.length, 
-				auth_plugin_data_part_2.length);
+		auth_plugin_data_part = IOUtils.add(auth_plugin_data_part_1, auth_plugin_data_part_2);
 	}
 	
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer(super.toString()).append("{");
 		
-		Class c = this.getClass();
+		Class<?> c = this.getClass();
 		Field fs[] = c.getDeclaredFields();
 		System.out.println(fs.length);
 		
@@ -102,11 +108,11 @@ public class HandshakeV10 {
 	}
 
 	public int getCapability_flag_1() {
-		return capability_flag_1;
+		return capability_flags_1;
 	}
 
 	public void setCapability_flag_1(int capability_flag_1) {
-		this.capability_flag_1 = capability_flag_1;
+		this.capability_flags_1 = capability_flag_1;
 	}
 
 	public int getCharacter_set() {

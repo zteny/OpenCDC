@@ -1,7 +1,6 @@
 package me.xcoding.opencdc.net.connector;
 
-import me.xcoding.opencdc.net.packet.Packetable;
-import me.xcoding.opencdc.net.packet.ReadablePacket;
+import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
 
 // this is a class, not interface
 public interface Connector {
@@ -13,7 +12,7 @@ public interface Connector {
 	
 	void login(String usernme, String password) throws ConnectionException;
 	
-	void write(Packetable packet) throws ConnectionException;
+	void write(ReadablePacket packet) throws ConnectionException;
 	
 	ReadablePacket read() throws ConnectionException;
 	

@@ -234,5 +234,10 @@ public abstract class ReadablePacket extends InputStream implements BasicReader 
 		
 		return b;
 	}
+	
+	@Override
+	public int skip(int off) {
+		return offset += off;
+	}
 
 }
