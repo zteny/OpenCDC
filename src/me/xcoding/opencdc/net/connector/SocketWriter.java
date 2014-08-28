@@ -14,19 +14,9 @@ public class SocketWriter extends WritablePcaket {
 
 	@Override
 	public void flush() throws IOException {
-		offset = offset - 5;
-		buffer[0] = (byte) (offset & FF);
-		buffer[1] = (byte) ((offset >>  8) & FF);
-		buffer[2] = (byte) ((offset >> 16) & FF);
-		
-		os.write(buffer, 0, offset+4);
 		os.flush();
 		
 		// clear
 		buffer[3] = 0; buffer[4] = 0; offset = 5;
-	}
-	
-	public void write(WritablePcaket packet) {
-		
 	}
 }

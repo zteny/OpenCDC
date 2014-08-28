@@ -12,20 +12,41 @@ public abstract class WritablePcaket implements BasicWriter {
 	
 	@Override
 	public void writeBytesVarLen(byte[] value) {
-		// TODO Auto-generated method stub
+		int v = value.length;
+		buffer[offset++] = (byte) (v & FF);
+		if(v > 256) {
+			buffer[offset++] = (byte) ((v >> 8) & FF);
+		}
 		
+		System.arraycopy(value, 0, buffer, offset++, v);
+		offset += v;
 	}
 
 	@Override
 	public void writeBytesTermNul(byte[] value) {
-		// TODO Auto-generated method stub
-		
+		System.arraycopy(value, 0, buffer, offset++, value.length);
+		offset += value.length;
+		buffer[offset++] = 0;
 	}
 
 	@Override
 	public void writeBytesLenEnc(byte[] value) {
-		// TODO Auto-generated method stub
+		int v = value.length;
+		if(v < 0x000000FB) {
+			buffer[offset++] = (byte) (v & FF);
+		} else if(v < 0x00FC0000) {
+			buffer[offset++] = (byte) 0xFC;
+			buffer[offset++] = (byte) (v & FF);
+			buffer[offset++] = (byte) ((v >> 8) & FF);
+		} else if(v < 0xFD000000) {
+			buffer[offset++] = (byte) 0xFD;
+			buffer[offset++] = (byte) (v & FF);
+			buffer[offset++] = (byte) ((v >>  8) & FF);
+			buffer[offset++] = (byte) ((v >> 16) & FF);
+		}
 		
+		System.arraycopy(value, 0, buffer, offset++, v);
+		offset += v;
 	}
 	
 	@Override
@@ -100,7 +121,7 @@ public abstract class WritablePcaket implements BasicWriter {
 	@Override
 	public void writeBytes(byte[] value, int offset, int length) {
 		System.arraycopy(value, offset, buffer, this.offset++, length);
-		offset += length;
+		this.offset += length;
 	}
 
 	public void setSequence(int sequence) {

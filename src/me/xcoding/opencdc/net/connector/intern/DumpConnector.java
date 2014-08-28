@@ -11,14 +11,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
+import me.xcoding.opencdc.mysql.protocol.CapabilityFlags;
+import me.xcoding.opencdc.mysql.protocol.HandshakeResponse;
 import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
+import me.xcoding.opencdc.mysql.protocol.WritablePcaket;
 import me.xcoding.opencdc.net.ConnectorContext;
 import me.xcoding.opencdc.net.HandshakeV10;
 import me.xcoding.opencdc.net.connector.ConnectionException;
 import me.xcoding.opencdc.net.connector.IDumpConnector;
 import me.xcoding.opencdc.net.connector.SocketReader;
 import me.xcoding.opencdc.net.connector.SocketWriter;
-import me.xcoding.opencdc.net.packet.BinlogPacket;
+import me.xcoding.opencdc.net.packet.DumpBinLog;
+import me.xcoding.opencdc.utils.MySQLUtils;
 
 public class DumpConnector implements IDumpConnector {
 	private Logger logger = LoggerFactory.getLogger(DumpConnector.class);
@@ -59,91 +63,47 @@ public class DumpConnector implements IDumpConnector {
 	@Override 
 	public void login(String username, String password) throws ConnectionException {
 		byte[] pwd = MySQLUtils.password41OrLater(password.getBytes(), v10.auth_plugin_data_part);
-		WritablePacket packet = new WritablePacket();
+		HandshakeResponse response = new HandshakeResponse();
 
-		int v = MySQLConstants.CLIENT_SECURE_CONNECTION | MySQLConstants.CLIENT_PROTOCOL_41 | MySQLConstants.CLIENT_LONG_FLAG;
+		int v = CapabilityFlags.CLIENT_SECURE_CONNECTION | CapabilityFlags.CLIENT_PROTOCOL_41 | CapabilityFlags.CLIENT_LONG_FLAG;
+//		response.setXx()
 		
-		packet.setSequence(1);
-		// capability_flags : 4
-		packet.writeInt(v);
-		// max_packet_size : 4
-		packet.writeInt(0);
-		packet.writeByte(v10.getCharacter_set());
-		// reserved : 23 
-		packet.writeBytes(new byte[23]);
-		// username
-		packet.writeString(username); // end by 0
-		// password
-		packet.writeByte(pwd.length);
-		packet.writeBytes(pwd);
-		
-		this.write(packet);
-		
-		ReadablePacket rp = this.read();
-		int header = rp.readByte();
-		if(header == 0) {
-			// logger
-		}else if(header == -1) {
-			StringBuffer sb = new StringBuffer("login in mysql fail!");
-			sb.append(", error_code=").append(rp.readVIntD2());
-			rp.skip(1);
-			sb.append(", sql_state=").append(new String(rp.readBytes(5)));
-			sb.append(", error_message=").append(new String(rp.readBytesEOF())).append(".");
-			
-			throw new ConnectionException(sb.toString());
-		}
-	}
-
-	@Override
-	public void write(Packetable packet) throws ConnectionException {
 		try {
-			out.write(packet.toBytes());
-			out.flush();
+			// FIXME
+//			writer.write(response.());
+			writer.flush();
+			
+			ReadablePacket packet = reader.buildPacket();
+			
 		} catch (IOException e) {
-			throw new ConnectionException(e);
-		}
-	}
-	
-	@Override
-	public ReadablePacket read() throws ConnectionException {
-		try {
-			ReadablePacket packet = new ReadablePacket();
-			
-			// TODO
-			int _len = 0;
-			int len = in.read() | ((in.read() & FF) << 8) | ((in.read() & FF) << 16);
-			int sequenceId = in.read(); // sequenceId
-			System.out.println("sequenceId = " + sequenceId);
-			
-			byte[] b = new byte[len];
-			while(_len < len) {
-				_len += in.read(b, _len, len - _len);
-			}
-			packet.setBody(b);
-			return packet;
-		} catch (Exception e) {
-			throw new ConnectionException(e);
+			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void dumpBinlog() throws ConnectionException {
-		WritablePacket packet = new WritablePacket();
-		packet.setSequence(0);
-		packet.writeByte(MySQLConstants.COM_BINLOG_DUMP);	// 1 
-
-		packet.writeInt(context.getLogPos());		// 4 logPos
-		packet.writeChar(1);						// 2 logFla 
-		packet.writeInt(context.getServerId());		// 4 sersId
-		packet.writeString(context.getLogName());	// binlogName
 		
-		this.write(packet);
 		
-//		ReadablePacket p = this.read(); // EOF Packet
 	}
 
-	public final BinlogPacket readPacket() {
+	public final DumpBinLog readPacket() {
 		
 		return null;
+	}
+
+	@Override
+	public void write(ReadablePacket packet) throws ConnectionException {
+		
+	}
+
+	@Override
+	public ReadablePacket read() throws ConnectionException {
+		return null;
+	}
+
+	@Override
+	public void write(WritablePcaket packet) throws ConnectionException {
+		// TODO Auto-generated method stub
+		
 	}
 }

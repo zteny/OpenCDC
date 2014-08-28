@@ -1,5 +1,11 @@
 package me.xcoding.opencdc.mysql;
 
+/**
+ * 
+ * @author Teny ZH(zh.Teny.1@gmail.com)
+ * @see http://dev.mysql.com/doc/internals/en/event-classes-and-types.html
+ * @see http://dev.mysql.com/doc/internals/en/event-meanings.html
+ */
 public interface BinLogEventType {
 	public final int UNKNOWN_EVENT = 0x000;
 	public final int START_EVENT_V3 = 0x0001;

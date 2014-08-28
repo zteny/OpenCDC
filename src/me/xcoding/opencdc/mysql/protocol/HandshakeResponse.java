@@ -44,8 +44,8 @@ public class HandshakeResponse {
 	private byte[] database;
 	private byte[] auth_plugin_name;
 
-	public WritablePcaket toWriter() throws IOException {
-		WritablePcaket writer = new InternWritablePacket();
+	public byte[] toWriter() throws IOException {
+		InternWritablePacket writer = new InternWritablePacket();
 
 		boolean withDb = true;
 		if(withDb) {
@@ -58,19 +58,78 @@ public class HandshakeResponse {
 		
 		writer.writeBytes(new byte[23]); //reserved (all [00])
 		
-		// writer.writeBytesNulTerm
-		writer.writeBytes(username); // FIXME 
+		writer.writeBytesTermNul(username); // FIXME 
+		writer.writeBytesVarLen(auth_response); //MySQLUtils.password41OrLater(new byte[]{}, new byte[]{}));
 		
+		if(withDb)
+			writer.writeBytes(database); // FIXME
 		
-		// auth-response
-		// writer.writeBytesVarLen   writer.writeBytesLenEnc
-		writer.writeFixLenIntT1(20);
-		writer.writeBytes(auth_response); //MySQLUtils.password41OrLater(new byte[]{}, new byte[]{}));
-		
-		// writer.write database
-		writer.writeBytes(database); // FIXME
-		
-		return writer;
+		return writer.toBytes();
 	}
+
+	public int getCapabilityFlags() {
+		return capabilityFlags;
+	}
+
+	public int getMax_packet_size() {
+		return max_packet_size;
+	}
+
+	public int getCharacter_size() {
+		return character_size;
+	}
+
+	public byte[] getUsername() {
+		return username;
+	}
+
+	public byte[] getAuth_response() {
+		return auth_response;
+	}
+
+	public byte[] getDatabase() {
+		return database;
+	}
+
+	public byte[] getAuth_plugin_name() {
+		return auth_plugin_name;
+	}
+
+	public HandshakeResponse setCapabilityFlags(int capabilityFlags) {
+		this.capabilityFlags = capabilityFlags;
+		return this;
+	}
+
+	public HandshakeResponse setMax_packet_size(int max_packet_size) {
+		this.max_packet_size = max_packet_size;
+		return this;
+	}
+
+	public HandshakeResponse setCharacter_size(int character_size) {
+		this.character_size = character_size;
+		return this;
+	}
+
+	public HandshakeResponse setUsername(byte[] username) {
+		this.username = username;
+		return this;
+	}
+
+	public HandshakeResponse setAuth_response(byte[] auth_response) {
+		this.auth_response = auth_response;
+		return this;
+	}
+
+	public HandshakeResponse setDatabase(byte[] database) {
+		this.database = database;
+		return this;
+	}
+
+	public HandshakeResponse setAuth_plugin_name(byte[] auth_plugin_name) {
+		this.auth_plugin_name = auth_plugin_name;
+		return this;
+	}
+	
+	
 	
 }

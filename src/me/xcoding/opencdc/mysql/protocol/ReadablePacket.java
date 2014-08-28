@@ -5,7 +5,8 @@ import java.io.InputStream;
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
 
 public abstract class ReadablePacket extends InputStream implements BasicReader {
-	protected final byte[] buffer = new byte[4 << 20];
+	/** FIXME Splits the data into packets of size (224–1) bytes */
+	protected final byte[] buffer = new byte[16 << 20];
 	
 	protected int offset = 0;
 	protected int end = 4; // FIXME

@@ -1,6 +1,7 @@
 package me.xcoding.opencdc.net.connector;
 
 import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
+import me.xcoding.opencdc.mysql.protocol.WritablePcaket;
 
 // this is a class, not interface
 public interface Connector {
@@ -15,6 +16,8 @@ public interface Connector {
 	void write(ReadablePacket packet) throws ConnectionException;
 	
 	ReadablePacket read() throws ConnectionException;
+
+	void write(WritablePcaket packet) throws ConnectionException;
 	
 //	void query(String query) throws ConnectionException;
 	
