@@ -1,13 +1,11 @@
 package me.xcoding.opencdc.binlog.event.row;
 
 import me.xcoding.opencdc.binlog.EventContext;
-import me.xcoding.opencdc.binlog.event.Event;
 import me.xcoding.opencdc.binlog.event.RowsEvent;
 import me.xcoding.opencdc.binlog.parser.EventParser;
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
 import me.xcoding.opencdc.mysql.protocol.column.Column;
 import me.xcoding.opencdc.mysql.protocol.column.ColumnDef;
-import me.xcoding.opencdc.mysql.protocol.column.ColumnList;
 import me.xcoding.opencdc.mysql.protocol.column.ColumnValueParser;
 
 /**
@@ -20,21 +18,6 @@ import me.xcoding.opencdc.mysql.protocol.column.ColumnValueParser;
  * @see http://dev.mysql.com/doc/internals/en/rows-event.html#write-rows-eventv2
  */
 public class WriteRowsEventV2 extends RowsEvent implements EventParser {
-//	header :
-	long tableId;
-	int flags;
-	
-	int extraDataLength;
-	byte[] extraData;
-	
-//	body :
-	int numberOfColumns;
-	byte[] columnsPresent;
-	byte[] nullBitmap;
-	
-//	rows : 
-	ColumnList columns1;
-//	ColumnList columns2;
 	
 	@Override
 	public WriteRowsEventV2 parser(EventContext context, BasicReader reader) {
@@ -48,17 +31,16 @@ public class WriteRowsEventV2 extends RowsEvent implements EventParser {
 		columnsPresent = reader.readBytesVarLen(numberOfColumns);
 		nullBitmap = reader.readBytesVarLen(numberOfColumns);
 		
-		columns1 = context.getAfterColumns().init(columnsPresent, nullBitmap);
+		columns2 = context.getAfterColumns().init(columnsPresent, nullBitmap);
 		
-		while(columns1.hasNext()) {
-			ColumnDef def = columns1.next();
+		while(columns2.hasNext()) {
+			ColumnDef def = columns2.next();
 			Object v = null;
-			if(!columns1.isNull()) {
+			if(!columns2.isNull()) {
 				v = ColumnValueParser.valueOf(def.getType(), def.getMeta(), reader);
 			}
 			
-			columns1.add(new Column(def.getType(), v));
-//			columns2.add(new Column(def.getType(), null));
+			columns2.add(new Column(def.getType(), v));
 		}
 		return this;
 	}
