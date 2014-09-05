@@ -1,10 +1,7 @@
 package me.xcoding.opencdc.net.connector.intern;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 import javax.net.SocketFactory;
 
@@ -20,10 +17,10 @@ import me.xcoding.opencdc.mysql.protocol.BasicReader;
 import me.xcoding.opencdc.mysql.protocol.CapabilityFlags;
 import me.xcoding.opencdc.mysql.protocol.DumpBinLog;
 import me.xcoding.opencdc.mysql.protocol.HandshakeResponse;
+import me.xcoding.opencdc.mysql.protocol.HandshakeV10;
 import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
 import me.xcoding.opencdc.mysql.protocol.WritablePcaket;
 import me.xcoding.opencdc.net.ConnectorContext;
-import me.xcoding.opencdc.net.HandshakeV10;
 import me.xcoding.opencdc.net.connector.ConnectionException;
 import me.xcoding.opencdc.net.connector.IDumpConnector;
 import me.xcoding.opencdc.net.connector.SocketReader;

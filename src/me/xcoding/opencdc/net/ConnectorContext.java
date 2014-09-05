@@ -9,6 +9,7 @@ import me.xcoding.opencdc.binlog.EventMaker;
 import me.xcoding.opencdc.binlog.event.Event;
 import me.xcoding.opencdc.binlog.event.EventHeader;
 import me.xcoding.opencdc.binlog.parser.EventHeaderParser;
+import me.xcoding.opencdc.mysql.protocol.HandshakeV10;
 import me.xcoding.opencdc.net.connector.ConnectionException;
 import me.xcoding.opencdc.net.connector.IDumpConnector;
 import me.xcoding.opencdc.net.connector.SocketReader;
