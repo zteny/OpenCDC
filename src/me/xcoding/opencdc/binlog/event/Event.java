@@ -10,7 +10,7 @@ public abstract class Event {
 		Field fs[] = c.getDeclaredFields();
 		Field.setAccessible(fs, true);
 		
-		StringBuffer sb  = new StringBuffer(super.toString()).append("[");
+		StringBuffer sb  = new StringBuffer(this.getClass().getSimpleName()).append("[");
 		try {
 			for(Field f : fs) {
 				sb.append(f.getName()).append("=");
