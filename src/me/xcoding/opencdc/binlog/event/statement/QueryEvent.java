@@ -1,11 +1,19 @@
 package me.xcoding.opencdc.binlog.event.statement;
 
 import me.xcoding.opencdc.binlog.EventContext;
-import me.xcoding.opencdc.binlog.event.Event;
+import me.xcoding.opencdc.binlog.event.StatementEvent;
 import me.xcoding.opencdc.binlog.parser.EventParser;
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
 
-public class QueryEvent extends Event implements EventParser {
+/**
+ * <b> Query Event </b>
+ * </br></br>
+ * The query event is used to send text querys right the binlog.
+ * 
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ * @see http://dev.mysql.com/doc/internals/en/query-event.html
+ */
+public class QueryEvent extends StatementEvent implements EventParser {
 	private int slaveProxyId;
 	private int executionTime;
 	
@@ -26,10 +34,10 @@ public class QueryEvent extends Event implements EventParser {
 		schemaLength = reader.readFixedIntT1();
 		errorCode = reader.readFixedIntT2();
 		
-//		if(context.getVersion() == 4) {
+		if(context.getVersion() >= 4) {
 			statusVarsLength = reader.readFixedIntT2();
 			statusVars = reader.readBytesVarLen(statusVarsLength);
-//		}
+		}
 		
 		schemaName = reader.readStringVarLen(schemaLength);
 		query = reader.readStringEOF();
