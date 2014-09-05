@@ -5,16 +5,22 @@ import me.xcoding.opencdc.binlog.event.Event;
 import me.xcoding.opencdc.binlog.parser.EventParser;
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
 
-// 0x04
+/**
+ * <b> Stop Event </b>
+ * </br></br>
+ * 
+ * Nothing. A stop_event has no payload or post-header.
+ * 
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ * @see http://dev.mysql.com/doc/internals/en/stop-event.html
+ */
 public class StopEvent  extends Event implements EventParser  {
 
 	public StopEvent() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
 	public Event parser(EventContext context, BasicReader reader) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
