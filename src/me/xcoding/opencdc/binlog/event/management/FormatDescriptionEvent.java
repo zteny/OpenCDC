@@ -18,7 +18,7 @@ public class FormatDescriptionEvent extends Event implements EventParser {
 	private long timestamp;
 	
 	// @see Event type header lengths by binlog version.
-	private byte[] eventType;
+	private byte[] eventTypeHeaderLen;
 	
 	@Override
 	public FormatDescriptionEvent parser(EventContext context, BasicReader reader) {
@@ -26,7 +26,9 @@ public class FormatDescriptionEvent extends Event implements EventParser {
 		serverVersion = reader.readStringFixLen(50);
 		timestamp = (reader.readFixedIntT4() & BasicReader._8F) * 1000l;
 		reader.readFixedIntT1();
-		eventType = reader.readBytesEOF();
+		eventTypeHeaderLen = reader.readBytesEOF();
+		
+		context.setEventType(eventTypeHeaderLen);
 		return this;
 	}
 
@@ -43,6 +45,6 @@ public class FormatDescriptionEvent extends Event implements EventParser {
 	}
 
 	public byte[] getEventType() {
-		return eventType;
+		return eventTypeHeaderLen;
 	}
 }

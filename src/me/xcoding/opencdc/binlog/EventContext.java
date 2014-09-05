@@ -17,6 +17,8 @@ public class EventContext {
 	private int version;
 	
 	private String versionName;
+	
+	private byte[] eventTypeheaderLen;
 
 	public void valueOf(ColumnList columns1, ColumnList columns2) {
 		this.columns1 = columns1;
@@ -58,5 +60,14 @@ public class EventContext {
 	public void setVersionName(String versionName) {
 		this.versionName = versionName;
 	}
-
+	
+	public EventContext setEventType(byte[] eventTypeHeaderLen) {
+		this.eventTypeheaderLen = eventTypeHeaderLen;
+		return this;
+	}
+	
+	public int getHeaderLen(int eventType) {
+		return eventTypeheaderLen[eventType];
+	}
+	
 }
