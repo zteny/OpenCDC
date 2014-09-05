@@ -208,7 +208,8 @@ class MBit implements ValueParser {
 class MTimestamp2 implements ValueParser {
 	@Override 
 	public Object valueOf(int length, BasicReader reader) {
-		final long time = reader.readVarLenLongU(4);
+		final long time = reader.readVarLenLongU(4) * 1000;
+		System.out.println(time);
 		final int nanos = reader.readVarLenIntU((length + 1) /2);
 
 		Timestamp ts = new Timestamp(time);
@@ -507,7 +508,7 @@ class MLongBlob implements ValueParser {
 class MBlob implements ValueParser {
 	@Override
 	public Object valueOf(int length, BasicReader reader) {
-		int v = reader.readVarLenIntU(length);
+		int v = reader.readVarLenInt(length);
 		
 		if(v < 0) 
 			throw new BinProtoValParserException("this length less than 0!");
@@ -520,7 +521,7 @@ class MVarString implements ValueParser {
 	@Override
 	public Object valueOf(int length, BasicReader reader) {
 		// FIXME fixed issue #66 ,binary类型在binlog中为var_string
-		int v = length > 256 ? (reader.readFixedIntT2()) : (reader.readFixedIntT2());
+		int v = length > 256 ? (reader.readFixedIntT2()) : (reader.readFixedIntT1());
 		
 		return reader.readStringVarLen(v);
 	}

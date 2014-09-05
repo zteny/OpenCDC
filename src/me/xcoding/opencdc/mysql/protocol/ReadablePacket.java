@@ -6,10 +6,23 @@ import me.xcoding.opencdc.mysql.protocol.BasicReader;
 
 public abstract class ReadablePacket extends InputStream implements BasicReader {
 	/** FIXME Splits the data into packets of size (224–1) bytes */
-	protected final byte[] buffer = new byte[16 << 20];
+	protected final byte[] buffer; //new byte[16 << 20];
 	
 	protected int offset = 0;
 	protected int end = 4; // FIXME
+	
+	public ReadablePacket(int batchSize) {
+		this.buffer = new byte[batchSize];
+	}
+	
+	@Override
+	public int readVarLenInt(int length) {
+		int v = 0;
+		for(int i=0; i<length; i++) {
+			v |= ((buffer[offset++] & FF) << (i << 3));
+		}
+		return v;
+	}
 	
 	@Override
 	public int readVarLenIntS(int length) {
@@ -53,6 +66,7 @@ public abstract class ReadablePacket extends InputStream implements BasicReader 
 	public long readVarLenLongU(int length) {
 		long v = 0;
 		for(int i=0; i<length; i++) {
+			System.out.print(Integer.toHexString(buffer[offset] & FF) + " ");
 			v = (v << 8) | (buffer[offset++] & FF);
 		}
 		return v;
@@ -156,10 +170,13 @@ public abstract class ReadablePacket extends InputStream implements BasicReader 
 	@Override
 	public String readStringNull() {
 		int start = offset;
-		while(buffer[offset++]!='0');
+		while(buffer[++offset] != 0);
 		
-		byte[] b = new byte[offset - start];
-		System.arraycopy(buffer, start, b, 0, offset - start);
+		int l = offset - start;
+		byte[] b = new byte[l];
+		System.arraycopy(buffer, start, b, 0, l);
+		
+		offset++;
 		
 		return new String(b);
 	}
@@ -169,7 +186,7 @@ public abstract class ReadablePacket extends InputStream implements BasicReader 
 		int len = end - offset;
 		
 		byte[] b = new byte[len];
-		System.arraycopy(buffer, offset, b, 0, end - offset);
+		System.arraycopy(buffer, offset, b, 0, len);
 		offset = end;
 		
 		return new String(b);
@@ -196,9 +213,9 @@ public abstract class ReadablePacket extends InputStream implements BasicReader 
 	@Override
 	public byte[] readBytesEOF() {
 		int len = end - offset;
-		
+		System.out.println("ReadablePacket.readBytesEOF()" + (end - offset));
 		byte[] b = new byte[len];
-		System.arraycopy(buffer, offset, b, 0, end-offset);
+		System.arraycopy(buffer, offset, b, 0, len);
 		offset = end;
 		
 		return b;
@@ -207,11 +224,12 @@ public abstract class ReadablePacket extends InputStream implements BasicReader 
 	@Override
 	public byte[] readBytesNull() {
 		int start = offset;
-		while(buffer[offset++]!='0');
+		while(buffer[++offset] != 0);
 		
-		byte[] b = new byte[offset - start];
-		System.arraycopy(buffer, start, b, 0, offset - start);
-		offset = offset + start;
+		int l = offset - start;
+		byte[] b = new byte[l];
+		System.arraycopy(buffer, start, b, 0, l);
+		offset++;
 		
 		return b;
 	}

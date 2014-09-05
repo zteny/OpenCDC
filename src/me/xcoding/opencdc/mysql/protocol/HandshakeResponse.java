@@ -3,8 +3,6 @@ package me.xcoding.opencdc.mysql.protocol;
 import java.io.IOException;
 
 import me.xcoding.opencdc.net.connector.SocketWriter;
-import me.xcoding.opencdc.net.packet.InternWritablePacket;
-import me.xcoding.opencdc.utils.MySQLUtils;
 
 /**
  * <B>Protocol::HandshakeResponse</B></br>
@@ -42,17 +40,22 @@ public class HandshakeResponse {
 	
 	private byte[] auth_response;
 	private byte[] database;
-	private byte[] auth_plugin_name;
+//	private byte[] auth_plugin_name;
 
-	public byte[] toWriter() throws IOException {
-		InternWritablePacket writer = new InternWritablePacket();
-
-		boolean withDb = true;
+	private SocketWriter writer = null;
+	
+	public HandshakeResponse(SocketWriter writer) {
+		this.writer = writer;
+	} 
+	
+	public void flush() throws IOException {
+		boolean withDb = false;
 		if(withDb) {
 			capabilityFlags ^= CapabilityFlags.CLIENT_CONNECT_WITH_DB;
 		}
 		
 		writer.writeFixLenIntT4(capabilityFlags);
+//		writer.writeBytes(new byte[] {0, -126, 0, 0});
 		writer.writeFixLenIntT4(max_packet_size);
 		writer.writeFixLenIntT1(character_size);
 		
@@ -64,7 +67,8 @@ public class HandshakeResponse {
 		if(withDb)
 			writer.writeBytes(database); // FIXME
 		
-		return writer.toBytes();
+		writer.setSequence(1);
+		writer.flush();
 	}
 
 	public int getCapabilityFlags() {
@@ -91,9 +95,9 @@ public class HandshakeResponse {
 		return database;
 	}
 
-	public byte[] getAuth_plugin_name() {
-		return auth_plugin_name;
-	}
+//	public byte[] getAuth_plugin_name() {
+//		return auth_plugin_name;
+//	}
 
 	public HandshakeResponse setCapabilityFlags(int capabilityFlags) {
 		this.capabilityFlags = capabilityFlags;
@@ -125,10 +129,10 @@ public class HandshakeResponse {
 		return this;
 	}
 
-	public HandshakeResponse setAuth_plugin_name(byte[] auth_plugin_name) {
-		this.auth_plugin_name = auth_plugin_name;
-		return this;
-	}
+//	public HandshakeResponse setAuth_plugin_name(byte[] auth_plugin_name) {
+//		this.auth_plugin_name = auth_plugin_name;
+//		return this;
+//	}
 	
 	
 	

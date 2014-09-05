@@ -1,5 +1,10 @@
 package me.xcoding.opencdc.mysql.protocol.column;
 
+/**
+ * Column MetaData Parser
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ *
+ */
 public abstract class MetaDataParser {
 	public static final int MYSQL_TYPE_DECIMAL	 	= 0x00;
 	public static final int MYSQL_TYPE_TINY			= 0x01;
@@ -53,10 +58,5 @@ public abstract class MetaDataParser {
 		lengthOf[MetaDataParser.MYSQL_TYPE_ENUM]        = 2;
 		lengthOf[MetaDataParser.MYSQL_TYPE_STRING]      = 2;
 	}
-//	{
-//		0X02, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-//		0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x00, 
-//		0x00, 0x00, 0x01, 0x02, 0x02, 0x00
-//	};
 }
 

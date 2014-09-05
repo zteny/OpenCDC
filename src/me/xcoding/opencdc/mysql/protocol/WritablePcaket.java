@@ -16,15 +16,20 @@ public abstract class WritablePcaket implements BasicWriter {
 		buffer[offset++] = (byte) (v & FF);
 		if(v > 256) {
 			buffer[offset++] = (byte) ((v >> 8) & FF);
+		} 
+		if(v > 0x00FFFFFF) {
+			buffer[offset++] = (byte) ((v >> 16) & FF);
 		}
+
+		assert !(v > 0x00FFFF);
 		
-		System.arraycopy(value, 0, buffer, offset++, v);
+		System.arraycopy(value, 0, buffer, offset, v);
 		offset += v;
 	}
 
 	@Override
 	public void writeBytesTermNul(byte[] value) {
-		System.arraycopy(value, 0, buffer, offset++, value.length);
+		System.arraycopy(value, 0, buffer, offset, value.length);
 		offset += value.length;
 		buffer[offset++] = 0;
 	}
@@ -38,7 +43,7 @@ public abstract class WritablePcaket implements BasicWriter {
 			buffer[offset++] = (byte) 0xFC;
 			buffer[offset++] = (byte) (v & FF);
 			buffer[offset++] = (byte) ((v >> 8) & FF);
-		} else if(v < 0xFD000000) {
+		} else if(v < 0xFD000000) { // FIXME
 			buffer[offset++] = (byte) 0xFD;
 			buffer[offset++] = (byte) (v & FF);
 			buffer[offset++] = (byte) ((v >>  8) & FF);
@@ -108,19 +113,19 @@ public abstract class WritablePcaket implements BasicWriter {
 
 	@Override
 	public void writeBytes(byte[] value) {
-		System.arraycopy(value, 0, buffer, offset++, value.length);
+		System.arraycopy(value, 0, buffer, offset, value.length);
 		offset += value.length;
 	}
 
 	@Override
 	public void writeBytes(byte[] value, int length) {
-		System.arraycopy(value, 0, buffer, offset++, length);
+		System.arraycopy(value, 0, buffer, offset, length);
 		offset += length;
 	}
 
 	@Override
 	public void writeBytes(byte[] value, int offset, int length) {
-		System.arraycopy(value, offset, buffer, this.offset++, length);
+		System.arraycopy(value, offset, buffer, this.offset, length);
 		this.offset += length;
 	}
 

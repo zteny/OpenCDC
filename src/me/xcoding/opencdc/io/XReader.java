@@ -6,14 +6,20 @@ import java.io.InputStream;
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
 import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
 
+/**
+ * For binlog file.
+ * 
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ *
+ */
 public class XReader extends ReadablePacket {
 	private static final int bufferSize = 4 << 20;
 	private final InputStream in;
 	private int tail = 0;
 	
 	public XReader(InputStream in) {
-		offset = 4;
-		this.in = in;
+		super(bufferSize);
+		this.in = in; offset = 4;
 	}
 	
 	@Override

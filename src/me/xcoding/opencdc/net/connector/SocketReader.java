@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
+import me.xcoding.opencdc.net.packet.generic.EOFPacket;
+import me.xcoding.opencdc.net.packet.generic.ErrPacket;
 import me.xcoding.opencdc.net.packet.generic.GenericPacket;
 import me.xcoding.opencdc.net.packet.generic.OKPacket;
 
@@ -18,35 +20,59 @@ import me.xcoding.opencdc.net.packet.generic.OKPacket;
  */
 public class SocketReader extends ReadablePacket {
 	private final InputStream in;
+	private int limit = 0;
 	
+	private int head = 0, tail = 0;
+	private static final int bufferSize = 8192 << 2;
 	public SocketReader(InputStream in) {
+		super(8192 << 2);
 		this.in = in;
+		this.end = 0;
 	}
 	
-	public ReadablePacket buildPacket() {
+	/**
+	 * Binlog Network Stream 
+	 * @return
+	 * @throws IOException 
+	 */
+	public ReadablePacket buildPacket() throws IOException {
+		if(end >= tail) {
+			hasMore();
+		}
+		offset = end;
+		int length = this.readFixedIntT3();
+//		int sequenceId =
+				this.readFixedIntT1();
+	
+		end = offset + length;
 		return this;
 	}
 	
-	public GenericPacket getResponsePacket() {
-		int length = this.readFixedIntT3();
-		int seqeunceId = this.readFixedIntT1();
+	public GenericPacket getResponsePacket() throws IOException {
+		if(end >= tail) {
+			hasMore();
+		}
 		
-		// header indicator
+		offset = end;
+		int length = this.readFixedIntT3();
+//		int sequenceId = 
+				this.readFixedIntT1();
+		
+		end = offset + length;
 		int header = this.readFixedIntT1(); 
 		
 		switch(header) {
 			case 0x0000 : { // OKPacket
-				// setLimit(); 是不是应该有个 max length呢？以免，过度消费。
 				OKPacket packet = OKPacket.parser(this);
 				return packet;
 			} 
 			case 0x00FE : { // EOFPacket
-				
-				break;
+				EOFPacket packet = EOFPacket.parser(this);
+				return packet;
 			} 
 			case 0x00FF : { // ERRPacket
-				
-				break;
+				ErrPacket packet = ErrPacket.parser(this);
+				return packet;
 			}
 			default : {
 //				throw new xxExcpetion();
@@ -55,14 +81,34 @@ public class SocketReader extends ReadablePacket {
 		return null;
 	}
 	
+	public void setLimit(int length) {
+		limit = length + offset;
+	}
+	
 	@Override
 	public boolean hasMore() throws IOException {
-		return false;
+		if(bufferSize - tail < 8192) {
+			System.arraycopy(buffer, offset, buffer, 0, (tail = tail - end));
+			end = 0; offset = 0; 
+		}
+		tail += in.read(buffer, tail, 8192);
+		offset = end;
+		
+		return (tail > head);
 	}
 
 	@Override
 	public boolean hasNext() {
-		return false;
+		if(offset >= tail)
+			try {
+				return hasMore();
+			} catch (IOException e) {
+			}
+		return true;
+	}
+	
+	public void position(int position) {
+		this.offset = position;
 	}
 
 	@Override

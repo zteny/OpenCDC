@@ -1,5 +1,12 @@
 package me.xcoding.opencdc.mysql.protocol.column;
 
+/**
+ * <b>Column Definition</b>
+ * </br> byte0 type </br> byte1 meta </br>
+ * 
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ *
+ */
 public class ColumnDef {
 	private int type;
 	private int meta;

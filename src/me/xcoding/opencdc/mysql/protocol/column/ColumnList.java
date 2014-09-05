@@ -2,43 +2,63 @@ package me.xcoding.opencdc.mysql.protocol.column;
 
 import java.util.Arrays;
 
+/**
+ * A serial Column. 
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ *
+ */
 public class ColumnList {
 	private static final int[] bitmask = new int[] {
 		1<<0, 1<<1, 1<<2, 1<<3, 1<<4, 1<<5, 1<<6, 1<<7
 	};
+
+	private int curColumn = -1;	
 	private final Column[] columns; // before
 	
 	private final int numberOfColumns;
-	
-	private final byte[] nullBitmask;
+	// 不能为空，或可以为空。
+//	private final byte[] nullBitmask;
 	private final byte[] columnTypeDef;
 	private final byte[] columnMetaDef;
 
+	private boolean[] _null;
+	private final boolean nullable[];
 	private static final int FF = 0x000000FF;
 	private final ColumnDef columnDef = new ColumnDef(0, 0);
 	
  	public ColumnList(byte[] columnTypeDef, byte[] columnMetaDef, byte[] nullBitmask) {
- 		this.nullBitmask = nullBitmask;
+// 		this.nullBitmask = nullBitmask;
 		this.columnTypeDef = columnTypeDef;
 		this.columnMetaDef = columnMetaDef;
 
 		this.numberOfColumns = columnTypeDef.length;
 		this.columns = new Column[numberOfColumns];
+		
+		this.nullable = new boolean[numberOfColumns];
+//		int c = 0; // FIXME : 是不是可以直接取到字段的Nullable呢?
+// 		for(byte b : nullBitmask) {
+// 			for(int pos=0; pos<8; pos++, c++) {
+// 				nullable[c] = ((b & bitmask[pos]) == bitmask[pos]);
+// 			}
+// 		}
 	}
  	
  	// FIXME 如此之挫，求改。
- 	boolean[] _null; 
  	public ColumnList init(byte[] columnsPresent, byte[] nullBitmap) {
  		_null = new boolean[columnsPresent.length << 3];
  		
  		int c = 0;
  		for(byte b : nullBitmap) {
  			for(int pos=0; pos<8; pos++, c++) {
- 				_null[c] = ((b & bitmask[pos]) == 1);
+ 				_null[c] = ((b & bitmask[pos]) == bitmask[pos]);
  			}
  		}
  		
  		return this;
+ 	}
+ 	
+ 	public boolean isNullable() {
+ 		return nullable[curColumn];
  	}
  	
  	public boolean isNull() {
@@ -52,7 +72,6 @@ public class ColumnList {
  		return _null[cIndex];
  	} 
   	
- 	int curColumn = -1;
  	public boolean hasNext() {
  		return ++curColumn < numberOfColumns;
  	}

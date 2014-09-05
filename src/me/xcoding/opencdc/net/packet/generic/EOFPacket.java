@@ -26,6 +26,6 @@ public class EOFPacket extends GenericPacket {
 	}
 	
 	public static final EOFPacket parser(ReadablePacket p) {
-		return null;
+		return new EOFPacket(p.readFixedIntT2(), p.readFixedIntT2());
 	} 
 }

@@ -1,6 +1,7 @@
 package me.xcoding.opencdc.net;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import me.xcoding.opencdc.mysql.protocol.CapabilityFlags;
 import me.xcoding.opencdc.mysql.protocol.ReadablePacket;
@@ -22,13 +23,15 @@ public class HandshakeV10 {
 	private String auth_plugin_name;
 	public final byte[] auth_plugin_data_part;
 	
+	private int capabilities = 0;
+	
 	
 	public HandshakeV10(ReadablePacket packet) {
 		protocal_version 		= packet.readFixedIntT1(); 
 		server_version			= packet.readStringNull(); // version
 		connectin_id 			= packet.readFixedIntT4(); // connection_id
 		auth_plugin_data_part_1 = packet.readBytesVarLen(8); // author scramble
-		filer 					= packet.readFixedIntT1(); // filer_1 // awayls set [00]
+		filer 					= packet.readFixedIntT1(); // filer_1 // always set [00]
 		
 		capability_flags_1 		= packet.readFixedIntT2(); // capability_flag_1
 		character_set			= packet.readFixedIntT1(); // charset_set
@@ -37,18 +40,18 @@ public class HandshakeV10 {
 		auth_plugin_data_len 	= packet.readFixedIntT1();
 		
 		// for test
-		int capabilities = (capability_flags_1 & 0x0000FFFF) | ((capability_flags_2 & 0x0000FFFF) << 16);
+		capabilities = (capability_flags_1 & 0x0000FFFF) | ((capability_flags_2 & 0x0000FFFF) << 16);
 		System.out.println("HandshakeV10.HandshakeV10()" + 
 				((capabilities & 0x00080000) == auth_plugin_data_len));
 		
 		packet.skip(10);
 		
 		int length = Math.max(13, auth_plugin_data_len - 8);
-		if((capabilities & CapabilityFlags.CLIENT_SECURE_CONNECTION) == 0) {
-			auth_plugin_data_part_2	= packet.readBytesVarLen(length); // author scramble
+		if((capabilities & CapabilityFlags.CLIENT_SECURE_CONNECTION) != 0) {
+			auth_plugin_data_part_2	= packet.readBytesNull(); // author scramble
 		}
 
-		if((capabilities & CapabilityFlags.CLIENT_SECURE_CONNECTION) == 0) {
+		if((capabilities & CapabilityFlags.CLIENT_SECURE_CONNECTION) != 0) {
 			auth_plugin_name = packet.readStringNull();
 		}
 		
@@ -66,7 +69,13 @@ public class HandshakeV10 {
 		Field.setAccessible(fs, true);
 		try {
 			for(Field f : fs) {
-				sb.append(f.getName()).append(" = ").append(f.get(this)).append(", \n");
+				sb.append(f.getName()).append(" = ");
+				if(f.getType().isArray()) {
+					sb.append(Arrays.toString((byte[])f.get(this))).append(", \n");
+				} else {
+					sb.append(f.get(this)).append(", \n");
+				}
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -107,7 +116,7 @@ public class HandshakeV10 {
 		this.filer = filer;
 	}
 
-	public int getCapability_flag_1() {
+	public int getCapability_flags_1() {
 		return capability_flags_1;
 	}
 
@@ -155,5 +164,7 @@ public class HandshakeV10 {
 		this.auth_plugin_name = auth_plugin_name;
 	}
 	
-	
+	public int getCapabilities() {
+		return capabilities;
+	}
 }

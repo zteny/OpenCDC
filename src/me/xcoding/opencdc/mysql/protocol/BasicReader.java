@@ -2,10 +2,22 @@ package me.xcoding.opencdc.mysql.protocol;
 
 import java.io.IOException;
 
+/**
+ * 
+ * @author Teny Zh
+ *
+ */
 public interface BasicReader {
 	int FF = 0x000000FF;
 	long _8F = 0x00000000FFFFFFFFl;
 	long FFl = 0x00000000000000FFl;
+	
+	/**
+	 * Little endian
+	 * @param length
+	 * @return
+	 */
+	int readVarLenInt(int length);
 	
 	/**
 	 *  Signed integer number, big end;

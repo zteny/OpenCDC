@@ -1,7 +1,8 @@
 package me.xcoding.opencdc.mysql.protocol;
 
+import java.io.IOException;
+
 import me.xcoding.opencdc.mysql.CommandPhase;
-import me.xcoding.opencdc.net.packet.InternWritablePacket;
 
 /**
  * <b>Com_Binlog_Dump</b>
@@ -27,17 +28,22 @@ public class DumpBinLog {
 	private int serverId;	
 	private String filename;
 	
-	public byte[] toByte() {
-		InternWritablePacket packet = new InternWritablePacket();
-		packet.writeFixLenIntT1(commandPhase);
-		packet.writeFixLenIntT4(binLogPos);
-		packet.writeFixLenIntT2(flags);
-		packet.writeFixLenIntT4(serverId);
+	private final WritablePcaket writer;
+	
+	public DumpBinLog(WritablePcaket writer) {
+		this.writer = writer;
+	}
+	
+	public void flush() throws IOException {
+		writer.writeFixLenIntT1(commandPhase);
+		writer.writeFixLenIntT4(binLogPos);
+		writer.writeFixLenIntT2(flags);
+		writer.writeFixLenIntT4(serverId);
 		
 		// FIXME
-		packet.writeBytesTermNul(filename.getBytes());
+		writer.writeBytesTermNul(filename.getBytes());
 		
-		return packet.toBytes();
+		writer.flush();
 	}
 
 	public int getBinLogPos() {

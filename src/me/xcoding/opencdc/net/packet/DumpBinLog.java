@@ -28,6 +28,7 @@ public class DumpBinLog {
 	
 	public byte[] toByte() {
 		InternWritablePacket packet = new InternWritablePacket();
+		
 		packet.writeFixLenIntT1(commandPhase);
 		packet.writeFixLenIntT4(binLogPos);
 		packet.writeFixLenIntT2(flags);
