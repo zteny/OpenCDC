@@ -49,6 +49,6 @@ public class WriteRowsEventV1 extends RowsEvent implements EventParser {
 			
 			columns2.add(new Column(def.getType(), v));
 		}
-		return null;
+		return this;
 	}
 }

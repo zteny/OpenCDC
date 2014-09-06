@@ -10,12 +10,12 @@ import me.xcoding.opencdc.mysql.protocol.column.ColumnValueParser;
 
 /**
  * 
- * include write_rows_eventV1 V2
+ * include write_rows_event V2
  * The format is pretty similar for all the events;
  * 
  * 
  * @author Teny ZH(zh.Teny.1@gmail.com)
- * @see http://dev.mysql.com/doc/internals/en/rows-event.html#write-rows-eventv2
+ * @see http://dev.mysql.com/doc/internals/en/rows-event.html
  */
 public class WriteRowsEventV2 extends RowsEvent implements EventParser {
 	

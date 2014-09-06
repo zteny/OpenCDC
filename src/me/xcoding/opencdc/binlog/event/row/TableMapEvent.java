@@ -6,19 +6,24 @@ import me.xcoding.opencdc.binlog.parser.EventParser;
 import me.xcoding.opencdc.mysql.protocol.BasicReader;
 import me.xcoding.opencdc.mysql.protocol.column.ColumnList;
 
+/**
+ * 
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ *
+ */
 public class TableMapEvent extends Event implements EventParser {
-	long tableId;
-	int flags;
-	int schemaNameLength;
-	String schemaName;
-	int tableNameLength;
-	String tableName;
+	private long tableId;
+	private int flags;
+	private int schemaNameLength;
+	private String schemaName;
+	private int tableNameLength;
+	private String tableName;
 	// length-encoded integer type
 	// @see http://dev.mysql.com/doc/internals/en/integer.html#packet-Protocol::LengthEncodedInteger
-	int columnCount;
-	byte[] columnTypeDef;
-	byte[] columnMetaDef;
-	byte[] nullBitmask;
+	private int columnCount;
+	private byte[] columnTypeDef;
+	private byte[] columnMetaDef;
+	private byte[] nullBitmask;
 	
 	@Override
 	public TableMapEvent parser(EventContext context, BasicReader reader) {

@@ -63,6 +63,6 @@ public class UpdateRowsEventV2 extends RowsEvent implements EventParser {
 			
 			columns2.add(new Column(def.getType(), v));
 		}
-		return null;
+		return this;
 	}
 }

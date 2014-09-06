@@ -9,6 +9,19 @@ import me.xcoding.opencdc.mysql.protocol.column.Column;
 import me.xcoding.opencdc.mysql.protocol.column.ColumnDef;
 import me.xcoding.opencdc.mysql.protocol.column.ColumnValueParser;
 
+/**
+ * 
+ * <b> Update Rows Event Version 1 </b>
+ * </br>
+ * As much date as needed to identify a row + the data to change
+ * 
+ * </br></br>
+ * Written from MySQL 5.1.15 to 5.6.x
+ * 
+ * @author Teny Zh(zh.Teny.1@gmail.com)
+ * @see http://dev.mysql.com/doc/internals/en/rows-event.html
+ *
+ */
 public class UpdateRowsEventV1 extends RowsEvent implements EventParser {
 	
 	@Override
@@ -50,6 +63,6 @@ public class UpdateRowsEventV1 extends RowsEvent implements EventParser {
 			
 			columns2.add(new Column(def.getType(), v));
 		}
-		return null;
+		return this;
 	}
 }
